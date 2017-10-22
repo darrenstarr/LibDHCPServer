@@ -39,7 +39,7 @@ namespace LibDHCPServer.Enums
         MaskSupplier = 30,
         RouterDiscovery = 31,
         RouterRequest = 32,
-        StaticRoute = 33,
+        StaticRoute = 33,       // TODO? (classful)
         Trailers = 34,
         ARPTimeout = 35,
         Ethernet = 36,
@@ -50,10 +50,10 @@ namespace LibDHCPServer.Enums
         NISServers = 41,
         NTPServers = 42,        // DHCPOptionNTPServer
         VendorSpecific = 43,    // DHCPOptionVendorSpecificInformation
-        NETBIOSNameSrv = 44,
-        NETBIOSDistSrv = 45,
-        NETBIOSNodeType = 46,
-        NETBIOSScope = 47,
+        NETBIOSNameSrv = 44,    // DHCPOptionNetBIOSOverTCPIPNameServer
+        NETBIOSDistSrv = 45,    // TODO
+        NETBIOSNodeType = 46,   // TODO
+        NETBIOSScope = 47,      // TODO
         XWindowFont = 48,
         XWindowManager = 49,
         AddressRequest = 50,    // DHCPOptionRequestedIPAddress

@@ -20,12 +20,16 @@ namespace LibDHCPServer
         {
             Packet = new Packet();
             DHCPMessageType = messageType;
-            MaximumMessageSize = 1100;
             Hops = 0;
+            TimeElapsed = TimeSpan.Zero;
             BroadcastFlag = false;
             Packet.sname = string.Empty;
             Packet.file = string.Empty;
             Packet.magicNumber = Packet.DHCPMagicNumber;
+            ClientIP = IPAddress.Any;
+            YourIP = IPAddress.Any;
+            NextServerIP = IPAddress.Any;
+            RelayAgentIP = IPAddress.Any;
         }
 
         public PacketView(byte[] buffer)
@@ -283,6 +287,18 @@ namespace LibDHCPServer
                     Packet.options.Add(new DHCPOptionDHCPMessageType(value));
                 else
                     record.MessageType = value;
+
+                switch (value)
+                {
+                    case DHCPMessageType.DHCPOFFER:
+                    case DHCPMessageType.DHCPNAK:
+                    case DHCPMessageType.DHCPACK:
+                        Packet.op = MessageOpCode.BOOTREPLY;
+                        break;
+                    default:
+                        Packet.op = MessageOpCode.BOOTREQUEST;
+                        break;
+                }
             }
         }
 
@@ -391,6 +407,23 @@ namespace LibDHCPServer
                     Packet.options.Add(new DHCPOptionMaximumMessageSize(value));
                 else
                     record.MaximumMessageSize = value;
+            }
+        }
+
+        public List<IPAddress> WINSServer
+        {
+            get
+            {
+                var record = (DHCPOptionNetBIOSOverTCPIPNameServer)Packet.options.Where(x => x.GetType() == typeof(DHCPOptionNetBIOSOverTCPIPNameServer)).FirstOrDefault();
+                return (record == null) ? new List<IPAddress>() : record.NameServers;
+            }
+            set
+            {
+                var record = (DHCPOptionNetBIOSOverTCPIPNameServer)Packet.options.Where(x => x.GetType() == typeof(DHCPOptionNetBIOSOverTCPIPNameServer)).FirstOrDefault();
+                if (record == null)
+                    Packet.options.Add(new DHCPOptionNetBIOSOverTCPIPNameServer(value));
+                else
+                    record.NameServers = value;
             }
         }
 

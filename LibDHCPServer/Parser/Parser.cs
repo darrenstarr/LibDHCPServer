@@ -162,6 +162,8 @@ namespace LibDHCPServer.Parser
                     return new DHCPOptionDomainNameServer(optionLength, buffer, offset);
                 case DHCPOptionType.Hostname:
                     return new DHCPOptionHostname(optionLength, buffer, offset);
+                case DHCPOptionType.NETBIOSNameSrv:
+                    return new DHCPOptionNetBIOSOverTCPIPNameServer(optionLength, buffer, offset);
                 case DHCPOptionType.NTPServers:
                     return new DHCPOptionNTPServer(optionLength, buffer, offset);
                 case DHCPOptionType.Pad:
