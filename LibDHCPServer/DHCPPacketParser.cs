@@ -1,4 +1,27 @@
-﻿using LibDHCPServer.Enums;
+﻿/// The MIT License(MIT)
+/// 
+/// Copyright(c) 2017 Conscia Norway AS
+/// 
+/// Permission is hereby granted, free of charge, to any person obtaining a copy
+/// of this software and associated documentation files (the "Software"), to deal
+/// in the Software without restriction, including without limitation the rights
+/// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+/// copies of the Software, and to permit persons to whom the Software is
+/// furnished to do so, subject to the following conditions:
+/// 
+/// The above copyright notice and this permission notice shall be included in all
+/// copies or substantial portions of the Software.
+/// 
+/// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+/// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+/// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+/// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+/// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+/// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+/// SOFTWARE.
+
+using LibDHCPServer.Enums;
+using LibDHCPServer.HardwareAddressTypes;
 using LibDHCPServer.Options;
 using System;
 using System.Collections.Generic;
@@ -6,22 +29,22 @@ using System.Linq;
 using System.Net;
 using System.Text;
 
-namespace LibDHCPServer.Parser
+namespace LibDHCPServer
 {
-    class Parser
+    class DHCPPacketParser
     {
         /// <summary>
         /// DHCP packet parser based on RFC2131 (https://tools.ietf.org/html/rfc2131)
         /// </summary>
         /// <param name="buffer">The input buffer to parse.</param>
         /// <returns>A parsed packet structure or null</returns>
-        public static Packet Parse(byte[] buffer)
+        public static DHCPPacket Parse(byte[] buffer)
         {
             if (buffer.Length < 240)
                 throw new ArgumentException("The minimum DHCP packet size if 236 bytes", "buffer");
 
             // Parse BOOTP Options
-            var result = new Packet
+            var result = new DHCPPacket
             {
                 op = (MessageOpCode)buffer[0],
                 htype = (HardwareAddressType)buffer[1],
@@ -40,7 +63,7 @@ namespace LibDHCPServer.Parser
                 magicNumber = Read32UnsignedBE(buffer, 236)
             };
 
-            if(result.magicNumber != Packet.DHCPMagicNumber)
+            if(result.magicNumber != DHCPPacket.DHCPMagicNumber)
                 throw new Exception("Received packet may be a BOOTP packet but is not a valid DHCP packet as it is missing the magic number at offset 236.");
 
             var index = 240;
@@ -184,6 +207,8 @@ namespace LibDHCPServer.Parser
                     return new DHCPOptionTFTPServerName(optionLength, buffer, offset);
                 case DHCPOptionType.SubnetMask:
                     return new DHCPOptionSubnetMask(optionLength, buffer, offset);
+                case DHCPOptionType.TFTPserveraddress:
+                    return new DHCPOptionTFTPServer(optionLength, buffer, offset);
                 case DHCPOptionType.TimeOffset:
                     return new DHCPOptionTimeOffset(optionLength, buffer, offset);
                 case DHCPOptionType.TimeServer:

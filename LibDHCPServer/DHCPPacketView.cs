@@ -1,4 +1,27 @@
-﻿using LibDHCPServer.Enums;
+﻿/// The MIT License(MIT)
+/// 
+/// Copyright(c) 2017 Conscia Norway AS
+/// 
+/// Permission is hereby granted, free of charge, to any person obtaining a copy
+/// of this software and associated documentation files (the "Software"), to deal
+/// in the Software without restriction, including without limitation the rights
+/// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+/// copies of the Software, and to permit persons to whom the Software is
+/// furnished to do so, subject to the following conditions:
+/// 
+/// The above copyright notice and this permission notice shall be included in all
+/// copies or substantial portions of the Software.
+/// 
+/// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+/// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+/// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+/// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+/// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+/// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+/// SOFTWARE.
+
+using LibDHCPServer.Enums;
+using LibDHCPServer.HardwareAddressTypes;
 using LibDHCPServer.Options;
 using System;
 using System.Collections.Generic;
@@ -10,34 +33,34 @@ using System.Threading.Tasks;
 
 namespace LibDHCPServer
 {
-    public class PacketView
+    public class DHCPPacketView
     {
         public const int DHCPBroadcastFlag = 0x8000;
 
-        public Packet Packet { get; set; }
+        public DHCPPacket Packet { get; set; }
 
-        public PacketView(DHCPMessageType messageType)
+        public DHCPPacketView(DHCPMessageType messageType)
         {
-            Packet = new Packet();
+            Packet = new DHCPPacket();
             DHCPMessageType = messageType;
             Hops = 0;
             TimeElapsed = TimeSpan.Zero;
             BroadcastFlag = false;
             Packet.sname = string.Empty;
             Packet.file = string.Empty;
-            Packet.magicNumber = Packet.DHCPMagicNumber;
+            Packet.magicNumber = DHCPPacket.DHCPMagicNumber;
             ClientIP = IPAddress.Any;
             YourIP = IPAddress.Any;
             NextServerIP = IPAddress.Any;
             RelayAgentIP = IPAddress.Any;
         }
 
-        public PacketView(byte[] buffer)
+        public DHCPPacketView(byte[] buffer)
         {
-            Packet = Parser.Parser.Parse(buffer);
+            Packet = DHCPPacketParser.Parse(buffer);
         }
 
-        public PacketView(Packet packet)
+        public DHCPPacketView(DHCPPacket packet)
         {
             Packet = packet;
         }
@@ -60,7 +83,7 @@ namespace LibDHCPServer
             WritePadded(Packet.chaddr.GetBytes(), 16, ref buffer, ref index);
             WritePaddedASCII(Packet.sname, 64, ref buffer, ref index);
             WritePaddedASCII(Packet.file, 128, ref buffer, ref index);
-            WriteUInt32(Packet.DHCPMagicNumber, ref buffer, ref index);
+            WriteUInt32(DHCPPacket.DHCPMagicNumber, ref buffer, ref index);
             if (index != 240)
                 throw new Exception("Packet format is just plain wrong!!!");
 
@@ -649,6 +672,25 @@ namespace LibDHCPServer
                     record.TFTPServerName = value;
             }
         }
+
+        // TODO : Come up with a better name
+        public List<IPAddress> TFTPServer150
+        {
+            get
+            {
+                var record = (DHCPOptionTFTPServer)Packet.options.Where(x => x.GetType() == typeof(DHCPOptionTFTPServer)).FirstOrDefault();
+                return (record == null) ? new List<IPAddress>() : record.TFTPServers;
+            }
+            set
+            {
+                var record = (DHCPOptionTFTPServer)Packet.options.Where(x => x.GetType() == typeof(DHCPOptionTFTPServer)).FirstOrDefault();
+                if (record == null)
+                    Packet.options.Add(new DHCPOptionTFTPServer(value));
+                else
+                    record.TFTPServers = value;
+            }
+        }
+
 
         public TimeSpan TimeElapsed
         {

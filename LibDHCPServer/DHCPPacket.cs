@@ -21,34 +21,33 @@
 /// SOFTWARE.
 
 using LibDHCPServer.Enums;
-using System.IO;
+using LibDHCPServer.HardwareAddressTypes;
+using LibDHCPServer.Options;
+using System;
+using System.Collections.Generic;
 using System.Net;
-using System.Threading.Tasks;
 
-namespace LibDHCPServer.Options
+namespace LibDHCPServer
 {
-    public class DHCPOptionDHCPServerIdentifier : DHCPOption
+    public class DHCPPacket
     {
-        public IPAddress ServerIdentifier { get; set; } = IPAddress.Any;
+        public const UInt32 DHCPMagicNumber = 0x63825363;
 
-        public DHCPOptionDHCPServerIdentifier(IPAddress serverIdentifier)
-        {
-            ServerIdentifier = serverIdentifier;
-        }
-
-        public DHCPOptionDHCPServerIdentifier(int optionLength, byte[] buffer, long offset)
-        {
-            ServerIdentifier = ReadIPAddress(buffer, offset);
-        }
-
-        public override string ToString()
-        {
-            return "DHCP server identifier : " + ServerIdentifier.ToString();
-        }
-
-        public override Task Serialize(Stream stream)
-        {
-            return SerializeIPAddress(stream, DHCPOptionType.DHCPServerId, ServerIdentifier);
-        }
-    }
+        public MessageOpCode op { get; set; }
+        public HardwareAddressType htype { get; set; }
+        public int hlen { get; set; }
+        public int hops { get; set; }
+        public UInt32 xid { get; set; }
+        public int secs { get; set; }
+        public int flags { get; set; }
+        public IPAddress ciaddr { get; set; }
+        public IPAddress yiaddr { get; set; }
+        public IPAddress siaddr { get; set; }
+        public IPAddress giaddr { get; set; }
+        public ClientHardwareAddress chaddr { get; set; }
+        public string sname { get; set; }
+        public string file { get; set; }
+        public UInt32 magicNumber { get; set; }
+        public List<DHCPOption> options { get; set; } = new List<DHCPOption>();
+    };
 }

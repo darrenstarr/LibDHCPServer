@@ -20,35 +20,37 @@
 /// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 /// SOFTWARE.
 
-using LibDHCPServer.Enums;
-using System.IO;
-using System.Net;
-using System.Threading.Tasks;
+using System;
+using System.Linq;
+using System.Text;
 
-namespace LibDHCPServer.Options
+namespace LibDHCPServer.HardwareAddressTypes
 {
-    public class DHCPOptionDHCPServerIdentifier : DHCPOption
+    public class GenericClientHardwareAddress : ClientHardwareAddress
     {
-        public IPAddress ServerIdentifier { get; set; } = IPAddress.Any;
-
-        public DHCPOptionDHCPServerIdentifier(IPAddress serverIdentifier)
+        public byte[] HardwareAddress;
+        public GenericClientHardwareAddress(byte [] buffer, long offset, long length)
         {
-            ServerIdentifier = serverIdentifier;
+            HardwareAddress = new byte[length];
+            Array.Copy(buffer, offset, HardwareAddress, 0, length);
         }
 
-        public DHCPOptionDHCPServerIdentifier(int optionLength, byte[] buffer, long offset)
+        public override int AddressLength
         {
-            ServerIdentifier = ReadIPAddress(buffer, offset);
+            get { return HardwareAddress.Length; }
         }
 
         public override string ToString()
         {
-            return "DHCP server identifier : " + ServerIdentifier.ToString();
+            if (Encoding.ASCII.GetChars(HardwareAddress, 0, HardwareAddress.Length).Select(x => Char.IsControl(x)).Where(x => x).FirstOrDefault())
+                return "Generic - " + String.Join(",", (HardwareAddress.Select(x => x.ToString("X2"))));
+            else
+                return "Generic - " + Encoding.ASCII.GetString(HardwareAddress);
         }
 
-        public override Task Serialize(Stream stream)
+        public override byte[] GetBytes()
         {
-            return SerializeIPAddress(stream, DHCPOptionType.DHCPServerId, ServerIdentifier);
+            return HardwareAddress;
         }
     }
 }

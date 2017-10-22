@@ -21,34 +21,37 @@
 /// SOFTWARE.
 
 using LibDHCPServer.Enums;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 
 namespace LibDHCPServer.Options
 {
-    public class DHCPOptionDHCPServerIdentifier : DHCPOption
+    public class DHCPOptionTFTPServer : DHCPOption
     {
-        public IPAddress ServerIdentifier { get; set; } = IPAddress.Any;
+        // TODO : Deep copy
+        public List<IPAddress> TFTPServers { get; set; } = new List<IPAddress>();
 
-        public DHCPOptionDHCPServerIdentifier(IPAddress serverIdentifier)
+        public DHCPOptionTFTPServer(List<IPAddress> tftpServers)
         {
-            ServerIdentifier = serverIdentifier;
+            TFTPServers = tftpServers;
         }
 
-        public DHCPOptionDHCPServerIdentifier(int optionLength, byte[] buffer, long offset)
+        public DHCPOptionTFTPServer(int optionLength, byte[] buffer, long offset)
         {
-            ServerIdentifier = ReadIPAddress(buffer, offset);
+            TFTPServers = ReadIPAddresses(buffer, offset, optionLength);
         }
 
         public override string ToString()
         {
-            return "DHCP server identifier : " + ServerIdentifier.ToString();
+            return "TFTP servers (Option 150) : " + string.Join(',', TFTPServers.Select(x => x.ToString()).ToList());
         }
 
         public override Task Serialize(Stream stream)
         {
-            return SerializeIPAddress(stream, DHCPOptionType.DHCPServerId, ServerIdentifier);
+            return SerializeIPAddressList(stream, DHCPOptionType.TFTPserveraddress, TFTPServers);
         }
     }
 }

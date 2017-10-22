@@ -21,34 +21,38 @@
 /// SOFTWARE.
 
 using LibDHCPServer.Enums;
-using System.IO;
-using System.Net;
-using System.Threading.Tasks;
+using System;
+using System.Linq;
 
-namespace LibDHCPServer.Options
+namespace LibDHCPServer.HardwareAddressTypes
 {
-    public class DHCPOptionDHCPServerIdentifier : DHCPOption
+    public class EthernetClientHardwareAddress : ClientHardwareAddress
     {
-        public IPAddress ServerIdentifier { get; set; } = IPAddress.Any;
+        public byte[] Address { get; set; } = new byte[] { 0, 0, 0, 0, 0, 0 };
 
-        public DHCPOptionDHCPServerIdentifier(IPAddress serverIdentifier)
+        public override HardwareAddressType AddressType { get { return HardwareAddressType.Ethernet; } }
+
+        public override int AddressLength
         {
-            ServerIdentifier = serverIdentifier;
+            get { return Address.Length; }
         }
 
-        public DHCPOptionDHCPServerIdentifier(int optionLength, byte[] buffer, long offset)
+        public EthernetClientHardwareAddress(byte [] address)
         {
-            ServerIdentifier = ReadIPAddress(buffer, offset);
+            if (address.Length < 6)
+                throw new ArgumentException("Address must contain at least 6 bytes", "address");
+
+            Array.Copy(address, Address, 6);
         }
 
         public override string ToString()
         {
-            return "DHCP server identifier : " + ServerIdentifier.ToString();
+            return string.Join(":", Address.ToList().Select(x => Convert.ToUInt32(x).ToString("X2")).ToArray());
         }
 
-        public override Task Serialize(Stream stream)
+        public override byte[] GetBytes()
         {
-            return SerializeIPAddress(stream, DHCPOptionType.DHCPServerId, ServerIdentifier);
+            return Address;
         }
     }
 }

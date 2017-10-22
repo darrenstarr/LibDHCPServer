@@ -3,9 +3,15 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.26730.15
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestLibDHCPServer", "TestLibDHCPServer\TestLibDHCPServer.csproj", "{9C644DD6-25B2-44C1-9CB9-E63393AFD730}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestLibDHCPServer", "TestLibDHCPServer\TestLibDHCPServer.csproj", "{9C644DD6-25B2-44C1-9CB9-E63393AFD730}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LibDHCPServer", "LibDHCPServer\LibDHCPServer.csproj", "{1B80561B-0E07-4C6B-93CE-442A6A5E763C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LibDHCPServer", "LibDHCPServer\LibDHCPServer.csproj", "{1B80561B-0E07-4C6B-93CE-442A6A5E763C}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{136FE8C0-BC25-4320-A812-44097DF4D071}"
+	ProjectSection(SolutionItems) = preProject
+		LICENSE.txt = LICENSE.txt
+		README.md = README.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
