@@ -1,7 +1,9 @@
 # LibDHCPServer
 
 Conscia Norway AS
+
 Author Darren R. Starr
+
 License - MIT but will likely be relicensed to Apache once legal goes at it.
 
 ## Introduction
@@ -14,7 +16,8 @@ release the library with less options.
 The library is implemented entirely to use the async programming patterns of .NET and at this time is a .NET Core 2.0
 library only. There should be no reason why it would not work with other .NET libraries with a new project file.
 
-Note : This library was written in a period of a few days in order to reach a deadline. While the code itself is "clean",
+### Note 1
+This library was written in a period of a few days in order to reach a deadline. While the code itself is "clean",
 there are no unit tests and the code has only been tested through Wireshark and with a Cisco 2960 switch as a client device.
 All options (except option 43) has been tested by creating packets and reading them back again. Option 43 will probably need
 to be rearchitected a bit as Option 60 (vendor class id) is not consistant across different devices from the same vendor. As
@@ -22,7 +25,8 @@ Option 60 is intended to be a byte array, I have not used regular expressions to
 Instead, to make it work nicely, I'll need to come up with a better matching system for vendor specific options. This will
 not be a priority for me.
 
-Note 2 : The library is meant to be started and left running. This is horrifying and should have a stop feature which
+### Note 2
+The library is meant to be started and left running. This is horrifying and should have a stop feature which
 employs a cancellation token in server to start and stop the process.
 
 ## Structure
