@@ -43,6 +43,19 @@ namespace LibDHCPServer.Options
                     _agentCircuitId = value;
             }
         }
+
+        public string AgentCircuitIdAscii
+        {
+            get
+            {
+                if (AgentCircuitId.Select(x => Char.IsControl(Convert.ToChar(x)) ? 1 : 0).Sum() > 0)
+                    return string.Empty;
+
+                return Encoding.ASCII.GetString(AgentCircuitId);
+            }
+            // TODO : Set would be very nice here
+        }
+
         private byte[] _agentRemoteId = new byte[0];
         public byte[] AgentRemoteId
         {
@@ -125,7 +138,7 @@ namespace LibDHCPServer.Options
             {
                 count++;
                 if (AgentRemoteId.Select(x => Char.IsControl(Convert.ToChar(x)) ? 1 : 0).Sum() > 0)
-                    result += "{Agent Remote ID = " + string.Join(",", AgentRemoteId.Select(x => string.Format("X2", Convert.ToInt32(x)))) + "}";
+                    result += "{Agent Remote ID = " + string.Join(",", AgentRemoteId.Select(x => x.ToString("X2"))) + "}";
                 else
                     result += "{Agent Remote ID = '" + Encoding.ASCII.GetString(AgentRemoteId) + "'}";
             }

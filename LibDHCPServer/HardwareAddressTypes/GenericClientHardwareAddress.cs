@@ -35,6 +35,12 @@ namespace LibDHCPServer.HardwareAddressTypes
             Array.Copy(buffer, offset, HardwareAddress, 0, length);
         }
 
+        public GenericClientHardwareAddress(byte[] buffer)
+        {
+            HardwareAddress = new byte[buffer.Length];
+            Array.Copy(buffer, 0, HardwareAddress, 0, buffer.Length);
+        }
+
         public override int AddressLength
         {
             get { return HardwareAddress.Length; }
@@ -51,6 +57,22 @@ namespace LibDHCPServer.HardwareAddressTypes
         public override byte[] GetBytes()
         {
             return HardwareAddress;
+        }
+        public override bool Equals(object obj)
+        {
+            var other = obj as GenericClientHardwareAddress;
+            if (other == null)
+                return false;
+
+            return HardwareAddress.SequenceEqual(other.HardwareAddress);
+        }
+        public override int GetHashCode()
+        {
+            return HardwareAddress.GetHashCode();
+        }
+        public override ClientHardwareAddress Clone()
+        {
+            return new GenericClientHardwareAddress(GetBytes());
         }
     }
 }

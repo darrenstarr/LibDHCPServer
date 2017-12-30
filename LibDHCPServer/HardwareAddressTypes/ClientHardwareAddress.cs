@@ -29,5 +29,6 @@ namespace LibDHCPServer.HardwareAddressTypes
         public virtual HardwareAddressType AddressType { get { return HardwareAddressType.Reserved; } }
         public abstract int AddressLength { get; }
         public abstract byte[] GetBytes();
+        public abstract ClientHardwareAddress Clone();
     }
 }

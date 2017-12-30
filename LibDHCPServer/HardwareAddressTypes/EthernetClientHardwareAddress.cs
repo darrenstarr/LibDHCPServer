@@ -54,5 +54,24 @@ namespace LibDHCPServer.HardwareAddressTypes
         {
             return Address;
         }
+
+        public override bool Equals(object obj)
+        {
+            var other = obj as EthernetClientHardwareAddress;
+            if (other == null)
+                return false;
+
+            return Address.SequenceEqual(other.Address);
+        }
+
+        public override int GetHashCode()
+        {
+            return Address.GetHashCode();
+        }
+
+        public override ClientHardwareAddress Clone()
+        {
+            return new EthernetClientHardwareAddress(GetBytes());
+        }
     }
 }

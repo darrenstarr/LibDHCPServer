@@ -79,18 +79,19 @@ namespace LibDHCPServer
             {
                 var request = new DHCPPacketView(buffer);
 
-                var serverIPAddress = QueryRoutingInterface(request.RelayAgentIP);
+                if (remoteEndPoint.Address.Equals(IPAddress.Any))
+                {
+                    System.Diagnostics.Debug.WriteLine("Ignoring packet. Only relayed packets accepted. (this packet was broadcast)");
+                    return true;
+                }
+
+                //IPAddress serverAddress = null;
+                var serverIPAddress = QueryRoutingInterface(remoteEndPoint.Address);
                 var localEndPoint = new IPEndPoint(serverIPAddress, 67);
 
                 System.Diagnostics.Debug.WriteLine("Received DHCP packet via relay : " + request.Packet.giaddr.ToString());
                 System.Diagnostics.Debug.WriteLine("  Hostname : " + request.Hostname);
                 System.Diagnostics.Debug.WriteLine("  Local IP facing relay : " + serverIPAddress);
-
-                if (request.RelayAgentIP.Equals(IPAddress.Any))
-                {
-                    System.Diagnostics.Debug.WriteLine("Ignoring packet. Only relayed packets accepted.");
-                    return true;
-                }
 
                 DHCPPacketView response = null;
                 switch(request.DHCPMessageType)
