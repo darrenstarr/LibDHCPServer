@@ -7,40 +7,30 @@ namespace LibDHCPServer.VolatilePool
     public class ExclusionChanges
     {
         NetworkPrefix Network { get; set; }
-        private List<IPRange> BeforeRanges { get; set; }
-        private List<IPRange> AfterRanges { get; set; }
+        private IPRanges BeforeRanges { get; set; }
+        private IPRanges AfterRanges { get; set; }
 
-        public ExclusionChanges(NetworkPrefix network, List<IPRange>before, List<IPRange>after)
+        public ExclusionChanges(NetworkPrefix network, IPRanges before, IPRanges after)
         {
             Network = network;
 
-            BeforeRanges = before
-                .Select(x =>
-                    new IPRange
-                    {
-                        Start = x.Start,
-                        End = x.End
-                    }
-                )
-                .ToList();
-
-            AfterRanges = after
-                .Select(x =>
-                    new IPRange
-                    {
-                        Start = x.Start,
-                        End = x.End
-                    }
-                )
-                .ToList();
-
+            BeforeRanges = before.Clone();
+            AfterRanges = after.Clone();
         }
 
-        public List<IPRange> ToUnexclude
+        public IPRanges ToUnexclude
         {
             get
             {
-                return null;
+                return BeforeRanges.Minus(AfterRanges);
+            }
+        }
+
+        public IPRanges ToExclude
+        {
+            get
+            {
+                return AfterRanges.Minus(BeforeRanges);
             }
         }
     }

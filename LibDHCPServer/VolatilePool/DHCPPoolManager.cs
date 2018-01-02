@@ -58,7 +58,7 @@ namespace LibDHCPServer.VolatilePool
         public void ModifyPool(
                 NetworkPrefix network,
                 List<IPAddress> gateways,
-                List<IPRange> exclusions,
+                IPRanges exclusions,
                 string domainName,
                 string bootFile,
                 List<IPAddress> dnsServers,
@@ -79,20 +79,31 @@ namespace LibDHCPServer.VolatilePool
                     )
                     .ToList();
 
-                // TODO : update range information in leases and address pool
-
                 var exclusionChanges = new ExclusionChanges(pool.Network, pool.Exclusions, exclusions);
 
-                pool.Exclusions = exclusions
-                    .Select(x =>
-                        new IPRange
-                        {
-                            Start = x.Start,
-                            End = x.End
-                        }
+                var leasesToKill = Leases
+                    .Where(x =>
+                        exclusionChanges.ToExclude.Contains(x.Address)
                     )
                     .ToList();
 
+                foreach (var leaseToKill in leasesToKill)
+                {
+                    addressPool.SetAvailable(leaseToKill.Address);
+                    Leases.Remove(leaseToKill);
+                }
+
+                var toExclude = exclusionChanges.ToExclude.Clone();
+                toExclude.Remove(pool.Network.BaseNetwork.Network);
+                toExclude.Remove(pool.Network.Broadcast);
+                addressPool.UnsetAvailable(toExclude);
+
+                var toUnexclude = exclusionChanges.ToUnexclude.Clone();
+                toUnexclude.Remove(pool.Network.BaseNetwork.Network);
+                toUnexclude.Remove(pool.Network.Broadcast);
+                addressPool.SetAvailable(toUnexclude);
+
+                pool.Exclusions = exclusions.Clone();
                 pool.PoolOptions.DomainName = domainName;
                 pool.PoolOptions.BootFile = bootFile;
                 pool.PoolOptions.TFTPServers = new List<string> { tftpServer.ToString() };
