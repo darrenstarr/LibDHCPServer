@@ -70,7 +70,14 @@ namespace LibDHCPServer.VolatilePool
                 var addressPool = AddressPools.Where(x => x.Pool.Network.Equals(network)).FirstOrDefault();
 
                 if (addressPool == null)
-                    throw new Exception("Address pool for network " + network.ToString() + " could not be found");
+                {
+                    var dhcpPool = GetPoolByPrefix(network);
+                    if (dhcpPool == null)
+                        return; 
+
+                    addressPool = new DhcpAddressPool(dhcpPool);
+                    AddressPools.Add(addressPool);
+                }
 
                 var pool = addressPool.Pool;
                 pool.DefaultGateways = gateways
